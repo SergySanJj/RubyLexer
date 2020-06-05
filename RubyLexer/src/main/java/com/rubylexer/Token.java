@@ -15,7 +15,7 @@ public class Token {
         map.put(TokenType.KEYWORD, "color: #0095ff; font-weight: bold;");
         map.put(TokenType.COMMENT, "color: #4aa724;");
         map.put(TokenType.ERROR, "color: white; text-decoration: underline; text-decoration-color:red");
-        map.put(TokenType.SYMBOL, "color: #e47c4b; font-weight: bold;");
+        map.put(TokenType.SYMBOL, "color: #e47c4b; font-weight: bold; font-style: italic;");
     }
 
     private String content;
@@ -57,7 +57,18 @@ public class Token {
     public String toHtml() {
         if (getContent().equals("\\n"))
             return "<br>";
-        return "<span style='" + getStyle(getTokenType()) + "'>" + getContent() + "</span>";
+
+        String rs = getContent();
+        if (tokenType != TokenType.ERROR && tokenType != TokenType.COMMENT){
+            rs = rs.replace("\"\\", "\"\\<br>");
+            rs = rs.replace("\'\\", "\'\\<br>");
+        }
+        else
+            rs = rs.replace("\n", "<br>");
+        rs = rs.replace("\t", "&nbsp;");
+        rs = rs.replace("\r", "&nbsp;");
+        rs = rs.replace("  ", "&nbsp;&nbsp;&nbsp;");
+        return "<span style='" + getStyle(getTokenType()) + "'>" + rs + "</span>";
     }
 
     private String getStyle(TokenType tokenType) {

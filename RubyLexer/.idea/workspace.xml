@@ -2,13 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8fd15e05-d7ed-4251-9224-1a6d5582ddda" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/output/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarIssues.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarIssues.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/ruby_test_file.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/ruby_test_file.rb" beforeDir="false" afterPath="$PROJECT_DIR$/input/ruby_test_file.rb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/output/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/output/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" afterDir="false" />
     </list>
@@ -87,7 +84,7 @@
       <updated>1591199958259</updated>
       <workItem from="1591199959825" duration="704000" />
       <workItem from="1591256590992" duration="26653000" />
-      <workItem from="1591338972442" duration="34063000" />
+      <workItem from="1591338972442" duration="41862000" />
     </task>
     <servers />
   </component>
@@ -112,5 +109,16 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
+          <line>452</line>
+          <option name="timeStamp" value="21" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

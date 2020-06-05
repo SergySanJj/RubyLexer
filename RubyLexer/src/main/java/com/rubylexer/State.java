@@ -37,6 +37,7 @@ public enum State {
 
     // STR LIT
     STR_LIT_SQ,
+    STR_MULTILINE,
 
     // COMMENT
     COMMENT_SINGLE_LINE,

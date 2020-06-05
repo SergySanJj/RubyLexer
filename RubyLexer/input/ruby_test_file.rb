@@ -1,12 +1,14 @@
 #!/usr/bin/ruby -w
-# ruby comment too
+
+# include is not a ruby keyword
+include  Some_lib
 
 $global_variable1 = :some_symbol1
 
 class ExampleClass
     # operator overloading
     def <=>(other)
-        print "this values are equal"
+        print "overload equal"
         @instance_variable += 10
         _local_variable -= -15
         return true
@@ -24,10 +26,30 @@ class ExampleClass
         d = +256E-10 + 10e120 - 0.24 + 0.04 - 0.
         return (b,c,d, 1...10)
     end
+
+    def exclamation
+        r = some_lib.eql?(2.0)
+        s = "UPpercase"\
+            "MULTILINE string"\
+
+            'values'
+        s.downcase!
+    end
+end
+
+module This_lib
 end
 
 BEGIN {
     ## some error cases:
-    123abc
-    1.02e10e
+    wrong_identifier_or_number = 123abc
+    wrong_exp_representation = 1.02e10e-11
+
+    single_lined_multiline_comment = "some"\"errors"
+
+    identifier_between = "some"\
+    a "errors"
+
+    not_continuation = 'dsdsds'\
 }
+

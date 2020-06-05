@@ -26,6 +26,8 @@ public class Lexer {
     public Token getNextToken() throws IOException {
         Token t = getTokenImplementation();
         lastToken = t;
+        value = "";
+        setStart();
         return t;
     }
 
@@ -45,51 +47,29 @@ public class Lexer {
                     continue;
 
                 if (idHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
                 if (symbolHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
                 if (stringLiteralHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
-
                 if (plusOrMinus(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
-
                 if (operatorHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
-
                 if (numberHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
-
                 if (punctuationHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
-
                 if (commentHandler(c, res) != null) {
-                    value = "";
-                    setStart();
                     return res;
                 }
-
             }
 
 
@@ -453,14 +433,51 @@ public class Lexer {
         value += Character.toString(c);
         Character k = bf.next();
         while (k != c2 && k != (char) 0) {
-            String app = Character.toString(k);
-            if (k == '\\')
-                app = "\\";
-            value += app;
+            value += wrap(k);
             k = bf.next();
         }
         if (k != (char) 0)
             value += Character.toString(k);
+
+        k = bf.next();
+        if (k == '\n') {
+            finalizeWithTokenType(t, TokenType.LITERAL, value);
+            bf.back(Character.toString(k));
+            return;
+        }
+
+        if (k == '\\') {
+            value += "\\";
+            curState = State.STR_MULTILINE;
+            do {
+                k = bf.next();
+
+                if (k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
+                    getErrorToken(t, k);
+                    return;
+                } else
+                    value += wrap(k);
+
+            } while (k != '\n' && k != ';' && k != '\r' && k != (char) 0);
+
+            do {
+                k = bf.next();
+
+                if (k != '\'' && k != '\"' && k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
+                    getErrorToken(t, k);
+                    return;
+                } else if (k != '\'' && k != '\"')
+                    value += wrap(k);
+            } while (k != '\'' && k != '\"' || k == (char) 0);
+
+            if (k == '\'') {
+                strLiteralSearch(k, t, '\'');
+            } else {
+                strLiteralSearch(k, t, '\"');
+            }
+
+        }
+
         finalizeWithTokenType(t, TokenType.LITERAL, value);
     }
 
@@ -486,6 +503,8 @@ public class Lexer {
             app = "\\";
         if (c == '\r')
             app = "";
+        if (c == '\t')
+            app = "\t";
         return app;
     }
 
