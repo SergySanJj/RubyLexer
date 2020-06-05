@@ -59,6 +59,9 @@ public class Token {
             return "<br>";
 
         String rs = getContent();
+        rs = rs.replace("<","&#60;");
+        rs = rs.replace(">","&#62;");
+
         if (tokenType != TokenType.ERROR && tokenType != TokenType.COMMENT){
             rs = rs.replace("\"\\", "\"\\<br>");
             rs = rs.replace("\'\\", "\'\\<br>");

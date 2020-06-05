@@ -5,6 +5,10 @@ include  Some_lib
 
 $global_variable1 = :some_symbol1
 
+<<HOMEDOC.func(abc)
+    some multiline literal
+HOMEDOC
+
 class ExampleClass
     # operator overloading
     def <=>(other)

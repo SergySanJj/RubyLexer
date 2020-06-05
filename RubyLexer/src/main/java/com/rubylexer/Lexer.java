@@ -46,30 +46,24 @@ public class Lexer {
                 } else if (Patterns.isSpacing(c))
                     continue;
 
-                if (idHandler(c, res) != null) {
+                if (idHandler(c, res) != null)
                     return res;
-                }
-                if (symbolHandler(c, res) != null) {
+                if (symbolHandler(c, res) != null)
                     return res;
-                }
-                if (stringLiteralHandler(c, res) != null) {
+                if (stringLiteralHandler(c, res) != null)
                     return res;
-                }
-                if (plusOrMinus(c, res) != null) {
+                if (homedocHandler(c, res) != null)
                     return res;
-                }
-                if (operatorHandler(c, res) != null) {
+                if (plusOrMinus(c, res) != null)
                     return res;
-                }
-                if (numberHandler(c, res) != null) {
+                if (operatorHandler(c, res) != null)
                     return res;
-                }
-                if (punctuationHandler(c, res) != null) {
+                if (numberHandler(c, res) != null)
                     return res;
-                }
-                if (commentHandler(c, res) != null) {
+                if (punctuationHandler(c, res) != null)
                     return res;
-                }
+                if (commentHandler(c, res) != null)
+                    return res;
             }
 
 
@@ -495,6 +489,50 @@ public class Lexer {
             return t;
         }
         return null;
+    }
+
+    private Token homedocHandler(Character c, Token t) throws IOException {
+        value = "";
+        Character k = c;
+        if (k == '<') {
+            curState = State.HOMEDOC_FIRST;
+            value += Character.toString(k);
+            k = bf.next();
+        } else return null;
+        if (k == '<') {
+            curState = State.HOMEDOC_SECOND;
+            value += Character.toString(k);
+        } else {
+            bf.back(Character.toString(k));
+            setStart();
+            value = "";
+            return null;
+        }
+        k = bf.next();
+        if (!Character.toString(k).matches("[_a-zA-Z]")) {
+            value += Character.toString(k);
+            bf.back(value.substring(1));
+            setStart();
+            value = "";
+            return null;
+        } else {
+            curState = State.HOMEDOC_START;
+            value+=Character.toString(k);
+        }
+        while (!value.matches("<<[_a-zA-Z][_a-zA-Z0-9]*[.,\n\r\t\\s]")) {
+            k = bf.next();
+            value += Character.toString(k);
+        }
+        String memorized = value.substring(2, value.length() - 1);
+        curState = State.HOMEDOC_FOUND_ID;
+
+        while (!value.endsWith("\n" + memorized) && k != (char) 0) {
+            k = bf.next();
+            value += Character.toString(k);
+        }
+        finalizeWithTokenType(t, TokenType.LITERAL, value);
+
+        return t;
     }
 
     private static String wrap(Character c) {
