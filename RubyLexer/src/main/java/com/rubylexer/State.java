@@ -47,6 +47,4 @@ public enum State {
     HOMEDOC_FIRST,
     HOMEDOC_SECOND,
     HOMEDOC_FOUND_ID,
-    HOMEDOC_FINISHED,
-    HOMEDOC_ESCAPE,
 }

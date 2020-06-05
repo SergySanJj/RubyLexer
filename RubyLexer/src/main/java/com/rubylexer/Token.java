@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class Token {
     private Map<TokenType, String> map = new HashMap<>();
-
     {
         map.put(TokenType.NUMBER, "color: #83c385;");
         map.put(TokenType.OPERATOR, "color: #e0e0e0; font-weight: bold;");
@@ -65,7 +64,8 @@ public class Token {
         if (tokenType == TokenType.LITERAL) {
             rs = rs.replace("\"\\", "\"\\<br>");
             rs = rs.replace("\'\\", "\'\\<br>");
-            rs = rs.replace("\n", "<br>");
+            if (rs.startsWith("&#60;"))
+                rs = rs.replace("\n", "<br>");
         } else
             rs = rs.replace("\n", "<br>");
         rs = rs.replace("\t", "&nbsp;");

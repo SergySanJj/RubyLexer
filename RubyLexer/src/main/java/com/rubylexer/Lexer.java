@@ -3,7 +3,6 @@ package com.rubylexer;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 
 public class Lexer {
@@ -16,7 +15,6 @@ public class Lexer {
     public Lexer(String filePath) {
         try {
             bf = new Buff(Files.newBufferedReader(Paths.get(filePath)));
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,11 +37,11 @@ public class Lexer {
             Character c = bf.next();
             if (curState.equals(State.START)) {
                 if (tokenizedSpaces) {
-                    if (Patterns.isSpacing(c)) {
+                    if (RubyLang.isSpacing(c)) {
                         finalizeWithTokenType(res, TokenType.PUNCTUATION, Character.toString(c));
                         return res;
                     }
-                } else if (Patterns.isSpacing(c))
+                } else if (RubyLang.isSpacing(c))
                     continue;
 
                 if (idHandler(c, res) != null)
@@ -65,7 +63,6 @@ public class Lexer {
                 if (commentHandler(c, res) != null)
                     return res;
             }
-
 
             if (c == (char) 0)
                 eof = true;
@@ -165,9 +162,9 @@ public class Lexer {
                 value += Character.toString(k);
                 curState = State.ID;
             } else {
-                if (Patterns.isKeyword(value))
+                if (RubyLang.isKeyword(value))
                     finalizeWithBufferBack(t, k, TokenType.KEYWORD);
-                else if (Patterns.isLiteral(value))
+                else if (RubyLang.isLiteral(value))
                     finalizeWithBufferBack(t, k, TokenType.LITERAL);
                 else
                     finalizeWithBufferBack(t, k, TokenType.ID);
@@ -180,9 +177,9 @@ public class Lexer {
             if (!Character.toString(k).matches("[_a-zA-Z0-9]")) {
                 curState = State.ID_FOUND_ESCAPE;
 
-                if (Patterns.isKeyword(value))
+                if (RubyLang.isKeyword(value))
                     finalizeWithBufferBack(t, k, TokenType.KEYWORD);
-                else if (Patterns.isLiteral(value))
+                else if (RubyLang.isLiteral(value))
                     finalizeWithBufferBack(t, k, TokenType.LITERAL);
                 else
                     finalizeWithBufferBack(t, k, TokenType.ID);
@@ -389,7 +386,7 @@ public class Lexer {
 
     private Token operatorHandler(Character c, Token t) throws IOException {
         value = "";
-        if (Patterns.isPartOfOperations(Character.toString(c))) {
+        if (RubyLang.isPartOfOperations(Character.toString(c))) {
             curState = State.OPERATION;
             value += Character.toString(c);
         } else {
@@ -397,7 +394,7 @@ public class Lexer {
         }
         Character k = bf.next();
         while (curState.equals(State.OPERATION)) {
-            if (Patterns.isPartOfOperations(value + Character.toString(k))) {
+            if (RubyLang.isPartOfOperations(value + Character.toString(k))) {
                 value += Character.toString(k);
             } else {
                 break;
