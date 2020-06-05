@@ -50,7 +50,7 @@ public class Lexer {
                     return res;
                 if (stringLiteralHandler(c, res) != null)
                     return res;
-                if (homedocHandler(c, res) != null)
+                if (heredocHandler(c, res) != null)
                     return res;
                 if (plusOrMinus(c, res) != null)
                     return res;
@@ -485,16 +485,16 @@ public class Lexer {
         return null;
     }
 
-    private Token homedocHandler(Character c, Token t) throws IOException {
+    private Token heredocHandler(Character c, Token t) throws IOException {
         value = "";
         Character k = c;
         if (k == '<') {
-            curState = State.HOMEDOC_FIRST;
+            curState = State.HEREDOC_FIRST;
             value += Character.toString(k);
             k = bf.next();
         } else return null;
         if (k == '<') {
-            curState = State.HOMEDOC_SECOND;
+            curState = State.HEREDOC_SECOND;
             value += Character.toString(k);
         } else {
             bf.back(Character.toString(k));
@@ -510,7 +510,7 @@ public class Lexer {
             value = "";
             return null;
         } else {
-            curState = State.HOMEDOC_START;
+            curState = State.HEREDOC_START;
             value+=wrap(k);
         }
         while (!value.matches("<<[_a-zA-Z][_a-zA-Z0-9]*[.,\n\r\t\\s]")) {
@@ -518,7 +518,7 @@ public class Lexer {
             value += wrap(k);
         }
         String memorized = value.substring(2, value.length() - 1);
-        curState = State.HOMEDOC_FOUND_ID;
+        curState = State.HEREDOC_FOUND_ID;
 
         while (!value.endsWith("\n" + memorized) && k != (char) 0) {
             k = bf.next();
