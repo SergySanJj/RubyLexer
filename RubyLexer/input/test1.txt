@@ -1,0 +1,23 @@
+class String
+    def NullOrEmpty?
+    (self == nil || self == "")
+    end
+end
+puts "test".NullOrEmpty?
+puts "".NullOrEmpty?
+
+<<COMMENT
+comment
+    comment
+       comment
+COMMENT
+
+
+$global = 12
+
+@instanced = 123
+
+@@class = 222
+
+
+_local = 0
