@@ -5,9 +5,7 @@ include  Some_lib
 
 $global_variable1 = :some_symbol1
 
-<<HOMEDOC.func(abc)
-    some multiline literal
-HOMEDOC
+$a  = [1,2,3,"4",:5]
 
 class ExampleClass
     # operator overloading
@@ -28,7 +26,6 @@ class ExampleClass
         b = a1 + a2 - a3*a4/a5 % 2
         c = -3
         d = +256E-10 + 10e120 - 0.24 + 0.04 - 0.
-        return (b,c,d, 1...10)
     end
 
     def exclamation
@@ -42,7 +39,12 @@ class ExampleClass
 end
 
 module This_lib
+p <<END_SQL.gsub(/\s+/, " ").strip
+    SELECT * FROM     users
+             ORDER BY users.id DESC
+END_SQL
 end
+
 
 BEGIN {
     ## some error cases:

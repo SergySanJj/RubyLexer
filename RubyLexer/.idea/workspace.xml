@@ -6,7 +6,6 @@
       <change beforePath="$PROJECT_DIR$/input/ruby_test_file.rb" beforeDir="false" afterPath="$PROJECT_DIR$/input/ruby_test_file.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/output/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -84,7 +83,7 @@
       <updated>1591199958259</updated>
       <workItem from="1591199959825" duration="704000" />
       <workItem from="1591256590992" duration="26653000" />
-      <workItem from="1591338972442" duration="44050000" />
+      <workItem from="1591338972442" duration="45340000" />
     </task>
     <servers />
   </component>
@@ -109,16 +108,5 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
-          <line>446</line>
-          <option name="timeStamp" value="21" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

@@ -434,42 +434,39 @@ public class Lexer {
             value += Character.toString(k);
 
         k = bf.next();
-        if (k == '\n') {
+        if (k != '\\') {
             finalizeWithTokenType(t, TokenType.LITERAL, value);
             bf.back(Character.toString(k));
             return;
         }
 
-        if (k == '\\') {
-            value += "\\";
-            curState = State.STR_MULTILINE;
-            do {
-                k = bf.next();
+        value += "\\";
+        curState = State.STR_MULTILINE;
+        do {
+            k = bf.next();
 
-                if (k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
-                    getErrorToken(t, k);
-                    return;
-                } else
-                    value += wrap(k);
+            if (k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
+                getErrorToken(t, k);
+                return;
+            } else
+                value += wrap(k);
 
-            } while (k != '\n' && k != ';' && k != '\r' && k != (char) 0);
+        } while (k != '\n' && k != ';' && k != '\r' && k != (char) 0);
 
-            do {
-                k = bf.next();
+        do {
+            k = bf.next();
 
-                if (k != '\'' && k != '\"' && k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
-                    getErrorToken(t, k);
-                    return;
-                } else if (k != '\'' && k != '\"')
-                    value += wrap(k);
-            } while (k != '\'' && k != '\"' || k == (char) 0);
+            if (k != '\'' && k != '\"' && k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
+                getErrorToken(t, k);
+                return;
+            } else if (k != '\'' && k != '\"')
+                value += wrap(k);
+        } while (k != '\'' && k != '\"' || k == (char) 0);
 
-            if (k == '\'') {
-                strLiteralSearch(k, t, '\'');
-            } else {
-                strLiteralSearch(k, t, '\"');
-            }
-
+        if (k == '\'') {
+            strLiteralSearch(k, t, '\'');
+        } else {
+            strLiteralSearch(k, t, '\"');
         }
 
         finalizeWithTokenType(t, TokenType.LITERAL, value);
@@ -510,25 +507,25 @@ public class Lexer {
         }
         k = bf.next();
         if (!Character.toString(k).matches("[_a-zA-Z]")) {
-            value += Character.toString(k);
+            value += wrap(k);
             bf.back(value.substring(1));
             setStart();
             value = "";
             return null;
         } else {
             curState = State.HOMEDOC_START;
-            value+=Character.toString(k);
+            value+=wrap(k);
         }
         while (!value.matches("<<[_a-zA-Z][_a-zA-Z0-9]*[.,\n\r\t\\s]")) {
             k = bf.next();
-            value += Character.toString(k);
+            value += wrap(k);
         }
         String memorized = value.substring(2, value.length() - 1);
         curState = State.HOMEDOC_FOUND_ID;
 
         while (!value.endsWith("\n" + memorized) && k != (char) 0) {
             k = bf.next();
-            value += Character.toString(k);
+            value += wrap(k);
         }
         finalizeWithTokenType(t, TokenType.LITERAL, value);
 
@@ -543,6 +540,10 @@ public class Lexer {
             app = "";
         if (c == '\t')
             app = "\t";
+        if (c=='\n')
+            app = "\n";
+        if (c=='\r')
+            app = "\r";
         return app;
     }
 

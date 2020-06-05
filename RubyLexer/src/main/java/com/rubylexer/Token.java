@@ -59,17 +59,16 @@ public class Token {
             return "<br>";
 
         String rs = getContent();
-        rs = rs.replace("<","&#60;");
-        rs = rs.replace(">","&#62;");
+        rs = rs.replace("<", "&#60;");
+        rs = rs.replace(">", "&#62;");
 
-        if (tokenType != TokenType.ERROR && tokenType != TokenType.COMMENT){
+        if (tokenType == TokenType.LITERAL) {
             rs = rs.replace("\"\\", "\"\\<br>");
             rs = rs.replace("\'\\", "\'\\<br>");
-        }
-        else
+            rs = rs.replace("\n", "<br>");
+        } else
             rs = rs.replace("\n", "<br>");
         rs = rs.replace("\t", "&nbsp;");
-        rs = rs.replace("\r", "&nbsp;");
         rs = rs.replace("  ", "&nbsp;&nbsp;&nbsp;");
         return "<span style='" + getStyle(getTokenType()) + "'>" + rs + "</span>";
     }
