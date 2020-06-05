@@ -2,11 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8fd15e05-d7ed-4251-9224-1a6d5582ddda" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/output/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sonarIssues.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarIssues.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/test1.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/input/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/ruby_test_file.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,8 +30,11 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="ProjectId" id="1cofe47prGkxRWmGInk9vXMj63o" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="android.sdk.path" value="$USER_HOME$/AppData/Local/Android/Sdk" />
     <property name="aspect.path.notification.shown" value="true" />
@@ -80,12 +87,15 @@
       <updated>1591199958259</updated>
       <workItem from="1591199959825" duration="704000" />
       <workItem from="1591256590992" duration="26653000" />
-      <workItem from="1591338972442" duration="22405000" />
+      <workItem from="1591338972442" duration="34063000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.rb" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -100,20 +110,7 @@
       </map>
     </option>
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
-          <line>416</line>
-          <option name="timeStamp" value="12" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
-          <line>386</line>
-          <option name="timeStamp" value="13" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
 </project>

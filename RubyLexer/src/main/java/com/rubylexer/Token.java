@@ -1,6 +1,22 @@
 package com.rubylexer;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Token {
+    private Map<TokenType, String> map = new HashMap<>();
+
+    {
+        map.put(TokenType.NUMBER, "color: #83c385;");
+        map.put(TokenType.OPERATOR, "color: #e0e0e0; font-weight: bold;");
+        map.put(TokenType.LITERAL, "color: #e47c4b;");
+        map.put(TokenType.PUNCTUATION, "color: #ffffff;");
+        map.put(TokenType.ID, "color: #e4e4e4;");
+        map.put(TokenType.KEYWORD, "color: #0095ff; font-weight: bold;");
+        map.put(TokenType.COMMENT, "color: #4aa724;");
+        map.put(TokenType.ERROR, "color: white; text-decoration: underline; text-decoration-color:red");
+        map.put(TokenType.SYMBOL, "color: #e47c4b; font-weight: bold;");
+    }
 
     private String content;
     private TokenType tokenType;
@@ -14,32 +30,12 @@ public class Token {
     }
 
 
-
-    public Token(){
-
+    public Token() {
     }
 
     public Token(TokenType tokenType, String content) {
         this.content = content;
-
-        if (tokenType.equals(TokenType.ID)) {
-            if (Patterns.isLiteral(content)) {
-                this.tokenType = TokenType.LITERAL;
-            } else if (Patterns.isKeyword(content)) {
-                this.tokenType = TokenType.KEYWORD;
-            } else
-                this.tokenType = tokenType;
-        } else
-            this.tokenType = tokenType;
-
-        if (tokenType.equals(TokenType.PUNCTUATION)) {
-            if ("\n".equals(content)) {
-                this.content = "\\" + "n";
-            } else if ("\t".equals(content)) {
-                this.content = "\\" + "t";
-            }
-        }
-
+        this.tokenType = tokenType;
     }
 
     public TokenType getTokenType() {
@@ -57,6 +53,18 @@ public class Token {
         }
         return res.toString();
     }
+
+    public String toHtml() {
+        if (getContent().equals("\\n"))
+            return "<br>";
+        return "<span style='" + getStyle(getTokenType()) + "'>" + getContent() + "</span>";
+    }
+
+    private String getStyle(TokenType tokenType) {
+
+        return map.get(tokenType);
+    }
+
 
     @Override
     public String toString() {

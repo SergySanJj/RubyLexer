@@ -58,4 +58,8 @@ public class Patterns {
         return false;
     }
 
+    public static boolean isSpacing(Character c) {
+        return Character.isWhitespace(c) && c != '\n';
+    }
+
 }

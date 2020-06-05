@@ -7,14 +7,11 @@ import java.util.ArrayList;
 
 
 public class Lexer {
-
     private State curState = State.START;
-
     private Buff bf;
-
     private String value = "";
 
-    private ArrayList<String> symtable = new ArrayList<>();
+    private boolean tokenizedSpaces = false;
 
     public Lexer(String filePath) {
         try {
@@ -39,6 +36,14 @@ public class Lexer {
         while (!eof) {
             Character c = bf.next();
             if (curState.equals(State.START)) {
+                if (tokenizedSpaces) {
+                    if (Patterns.isSpacing(c)) {
+                        finalizeWithTokenType(res, TokenType.PUNCTUATION, Character.toString(c));
+                        return res;
+                    }
+                } else if (Patterns.isSpacing(c))
+                    continue;
+
                 if (idHandler(c, res) != null) {
                     value = "";
                     setStart();
@@ -49,8 +54,8 @@ public class Lexer {
                     setStart();
                     return res;
                 }
-                if (stringLiteralHandler(c,res) != null){
-                    value="";
+                if (stringLiteralHandler(c, res) != null) {
+                    value = "";
                     setStart();
                     return res;
                 }
@@ -74,6 +79,12 @@ public class Lexer {
                 }
 
                 if (punctuationHandler(c, res) != null) {
+                    value = "";
+                    setStart();
+                    return res;
+                }
+
+                if (commentHandler(c, res) != null) {
                     value = "";
                     setStart();
                     return res;
@@ -223,7 +234,7 @@ public class Lexer {
 
                     Character k = bf.next();
 
-                    if (!Character.toString(k).matches("[0-9]")) {
+                    if (!isDigit(k)) {
                         finalizeWithTokenType(t, TokenType.OPERATOR, Character.toString(c));
                         bf.back(Character.toString(k));
                         return t;
@@ -263,6 +274,7 @@ public class Lexer {
         return null;
     }
 
+
     private Token getErrorToken(Token t, Character k) throws IOException {
         while (Character.toString(k).matches("[_A-Za-z0-9]")) {
             value += Character.toString(k);
@@ -277,14 +289,14 @@ public class Lexer {
     }
 
     private Token numberHandler(Character c, Token t) throws IOException {
-        if (!Character.toString(c).matches("[0-9]")) {
+        if (!isDigit(c)) {
             return null;
         } else {
             value += Character.toString(c);
         }
 
         Character k = bf.next();
-        if (Character.toString(k).matches("[0-9]")) {
+        if (isDigit(k)) {
             curState = State.NUMBER_START;
             value += Character.toString(k);
         } else if (k == '.') {
@@ -302,7 +314,7 @@ public class Lexer {
         while (curState.equals(State.NUMBER_START)) {
             k = bf.next();
 
-            if (Character.toString(k).matches("[0-9]")) {
+            if (isDigit(k)) {
                 value += Character.toString(k);
             } else if (k == '.') {
                 value += Character.toString(k);
@@ -324,12 +336,16 @@ public class Lexer {
 
         while (curState.equals(State.NUMBER_DOUBLE)) {
             k = bf.next();
-            if (Character.toString(k).matches("[0-9]")) {
+            if (isDigit(k)) {
                 value += Character.toString(k);
             } else if (k == 'e' || k == 'E') {
                 value += Character.toString(k);
                 curState = State.NUMBER_EXP_START;
                 break;
+            } else if (k == '.') {
+                value = value.substring(0, value.length() - 1);
+                finalizeWithBufferBack(t, "..", TokenType.NUMBER);
+                return t;
             } else {
                 curState = State.NUMBER_ESCAPE;
             }
@@ -339,7 +355,7 @@ public class Lexer {
             k = bf.next();
             if (k == '-' || k == '+') {
                 Character expectedDigit = bf.next();
-                if (Character.toString(expectedDigit).matches("[0-9]")) {
+                if (isDigit(expectedDigit)) {
                     value += Character.toString(k);
                     value += Character.toString(expectedDigit);
                     curState = State.NUMBER_EXP;
@@ -348,7 +364,7 @@ public class Lexer {
                     return t;
                 }
             } else {
-                if (Character.toString(k).matches("[0-9]")) {
+                if (isDigit(k)) {
                     value += Character.toString(k);
                     curState = State.NUMBER_EXP;
                 } else {
@@ -361,7 +377,7 @@ public class Lexer {
 
         while (curState.equals(State.NUMBER_EXP)) {
             k = bf.next();
-            if (Character.toString(k).matches("[0-9]")) {
+            if (isDigit(k)) {
                 value += Character.toString(k);
             } else if (Character.toString(k).matches("[_A-Za-z]")) {
                 // ERR
@@ -379,6 +395,14 @@ public class Lexer {
         t.setTokenType(number);
         t.setContent(value);
         bf.back(Character.toString(k));
+        setStart();
+        value = "";
+    }
+
+    private void finalizeWithBufferBack(Token t, String k, TokenType number) {
+        t.setTokenType(number);
+        t.setContent(value);
+        bf.back(k);
         setStart();
         value = "";
     }
@@ -430,6 +454,8 @@ public class Lexer {
         Character k = bf.next();
         while (k != c2 && k != (char) 0) {
             String app = Character.toString(k);
+            if (k == '\\')
+                app = "\\";
             value += app;
             k = bf.next();
         }
@@ -438,8 +464,41 @@ public class Lexer {
         finalizeWithTokenType(t, TokenType.LITERAL, value);
     }
 
+    private Token commentHandler(Character c, Token t) throws IOException {
+        if (c == '#') {
+            value = Character.toString(c);
+            curState = State.COMMENT_SINGLE_LINE;
+            Character k = bf.next();
+            while (k != '\n') {
+
+                value += wrap(k);
+                k = bf.next();
+            }
+            finalizeWithBufferBack(t, k, TokenType.COMMENT);
+            return t;
+        }
+        return null;
+    }
+
+    private static String wrap(Character c) {
+        String app = Character.toString(c);
+        if (c == '\\')
+            app = "\\";
+        if (c == '\r')
+            app = "";
+        return app;
+    }
+
+    private static boolean isDigit(Character k) {
+        return Character.toString(k).matches("[0-9]");
+    }
+
     private void setStart() {
         curState = State.START;
+    }
+
+    public void setTokenizedSpaces(boolean tokenizedSpaces) {
+        this.tokenizedSpaces = tokenizedSpaces;
     }
 
     private Token lastToken = null;
