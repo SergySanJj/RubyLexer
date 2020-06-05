@@ -14,13 +14,13 @@ public class Patterns {
             "case", "class",
             "def", "defined?", "do",
             "else", "elsif", "end", "ensure",
-            "false", "for",
+            "for",
             "if", "in",
             "module", "next", "nil", "not",
             "or",
             "redo", "rescue", "retry", "return",
             "self", "super",
-            "then", "true",
+            "then",
             "undef", "unless", "until",
             "when", "while",
             "yield"
@@ -42,11 +42,6 @@ public class Patterns {
             "true", "false", "null", "TRUE", "FALSE", "NIL"
     ));
 
-    private static Set<Character> punctuation = new HashSet<>(Arrays.asList(
-            ',', '(', ')', '{', '}', '[', ']', ':', ';', '.', '\n'
-    ));
-
-
     public static boolean isKeyword(String word) {
         return keywords.contains(word);
     }
@@ -55,8 +50,8 @@ public class Patterns {
         return literals.contains(word);
     }
 
-    public static boolean isPartOfOperations(String s){
-        for (String op : operations){
+    public static boolean isPartOfOperations(String s) {
+        for (String op : operations) {
             if (op.startsWith(s))
                 return true;
         }

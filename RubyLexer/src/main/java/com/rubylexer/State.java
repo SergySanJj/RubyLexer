@@ -22,7 +22,6 @@ public enum State {
     ID_FOUND_ESCAPE,
 
     // NUMBER
-    N_SIGNED,
     NUMBER_START,
     NUMBER_DOUBLE,
     NUMBER_EXP_START,
@@ -36,8 +35,7 @@ public enum State {
     // OPERATIONS
     OPERATION,
 
-    // LIMITER
-    END_STATEMENT
-
-    // UNKNOWN
+    // STR LIT
+    STR_LIT_SQ,
+    STR_LIT_DQ,
 }

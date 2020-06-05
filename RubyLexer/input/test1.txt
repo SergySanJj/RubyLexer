@@ -1,1 +1,17 @@
-a = -1-228 - 3321321e-21 -2 ** 321
+
+brra = "so"
+
+class rofl
+    def func(s,t)
+        a= - -5 +9 -10.
+        print a + :lmao
+    end
+
+    def <=>(other)
+        return true
+    end
+end
+
+ro = 123abc
+
+print b.eql?(c)

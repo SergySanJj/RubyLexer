@@ -4,7 +4,6 @@
     <list default="true" id="8fd15e05-d7ed-4251-9224-1a6d5582ddda" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/input/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/test1.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Buff.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Buff.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
@@ -81,7 +80,7 @@
       <updated>1591199958259</updated>
       <workItem from="1591199959825" duration="704000" />
       <workItem from="1591256590992" duration="26653000" />
-      <workItem from="1591338972442" duration="19108000" />
+      <workItem from="1591338972442" duration="22405000" />
     </task>
     <servers />
   </component>
@@ -100,5 +99,21 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
+          <line>416</line>
+          <option name="timeStamp" value="12" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
+          <line>386</line>
+          <option name="timeStamp" value="13" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

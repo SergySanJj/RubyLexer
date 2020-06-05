@@ -14,8 +14,6 @@ public class Lexer {
 
     private String value = "";
 
-    private static final int buffSize = 10;
-
     private ArrayList<String> symtable = new ArrayList<>();
 
     public Lexer(String filePath) {
@@ -48,6 +46,11 @@ public class Lexer {
                 }
                 if (symbolHandler(c, res) != null) {
                     value = "";
+                    setStart();
+                    return res;
+                }
+                if (stringLiteralHandler(c,res) != null){
+                    value="";
                     setStart();
                     return res;
                 }
@@ -177,11 +180,12 @@ public class Lexer {
                 value += Character.toString(k);
                 curState = State.ID;
             } else {
-                t.setTokenType(TokenType.ID);
-                t.setContent(value);
-                bf.back(Character.toString(k));
-                setStart();
-                value = "";
+                if (Patterns.isKeyword(value))
+                    finalizeWithBufferBack(t, k, TokenType.KEYWORD);
+                else if (Patterns.isLiteral(value))
+                    finalizeWithBufferBack(t, k, TokenType.LITERAL);
+                else
+                    finalizeWithBufferBack(t, k, TokenType.ID);
                 return t;
             }
         }
@@ -190,11 +194,13 @@ public class Lexer {
             k = bf.next();
             if (!Character.toString(k).matches("[_a-zA-Z0-9]")) {
                 curState = State.ID_FOUND_ESCAPE;
-                t.setTokenType(TokenType.ID);
-                t.setContent(value);
 
-                setStart();
-                bf.back(Character.toString(k));
+                if (Patterns.isKeyword(value))
+                    finalizeWithBufferBack(t, k, TokenType.KEYWORD);
+                else if (Patterns.isLiteral(value))
+                    finalizeWithBufferBack(t, k, TokenType.LITERAL);
+                else
+                    finalizeWithBufferBack(t, k, TokenType.ID);
                 return t;
             } else {
                 value += Character.toString(k);
@@ -289,11 +295,7 @@ public class Lexer {
             value += Character.toString(k);
             curState = State.NUMBER_EXP_START;
         } else {
-            t.setTokenType(TokenType.NUMBER);
-            t.setContent(value);
-            bf.back(Character.toString(k));
-            setStart();
-            value = "";
+            finalizeWithBufferBack(t, k, TokenType.NUMBER);
             return t;
         }
 
@@ -369,12 +371,16 @@ public class Lexer {
                 return t;
             }
         }
-        t.setTokenType(TokenType.NUMBER);
+        finalizeWithBufferBack(t, k, TokenType.NUMBER);
+        return t;
+    }
+
+    private void finalizeWithBufferBack(Token t, Character k, TokenType number) {
+        t.setTokenType(number);
         t.setContent(value);
         bf.back(Character.toString(k));
         setStart();
         value = "";
-        return t;
     }
 
     private void finalizeWithTokenType(Token t, TokenType number, String value) {
@@ -393,8 +399,8 @@ public class Lexer {
         }
         Character k = bf.next();
         while (curState.equals(State.OPERATION)) {
-            if (Patterns.isPartOfOperations(Character.toString(k))) {
-                value += Character.toString(c);
+            if (Patterns.isPartOfOperations(value + Character.toString(k))) {
+                value += Character.toString(k);
             } else {
                 break;
             }
@@ -404,6 +410,32 @@ public class Lexer {
         finalizeWithTokenType(t, TokenType.OPERATOR, value);
         bf.back(Character.toString(k));
         return t;
+    }
+
+    private Token stringLiteralHandler(Character c, Token t) throws IOException {
+        value = "";
+        if (c == '\'') {
+            strLiteralSearch(c, t, '\'');
+            return t;
+        } else if (c == '\"') {
+            strLiteralSearch(c, t, '\"');
+            return t;
+        }
+        return null;
+    }
+
+    private void strLiteralSearch(Character c, Token t, char c2) throws IOException {
+        curState = State.STR_LIT_SQ;
+        value += Character.toString(c);
+        Character k = bf.next();
+        while (k != c2 && k != (char) 0) {
+            String app = Character.toString(k);
+            value += app;
+            k = bf.next();
+        }
+        if (k != (char) 0)
+            value += Character.toString(k);
+        finalizeWithTokenType(t, TokenType.LITERAL, value);
     }
 
     private void setStart() {
