@@ -1,10 +1,8 @@
 #!/usr/bin/ruby -w
-
 # include is not a ruby keyword
 include  Some_lib
 
 $global_variable1 = :some_symbol1
-
 $a  = [1,2,3,"4",:5]
 
 class ExampleClass

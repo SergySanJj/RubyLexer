@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Patterns {
+public class RubyLang {
 
     private static Set<String> keywords = new HashSet<>(Arrays.asList(
             "BEGIN", "END", "__ENCODING__", "__END__", "__FILE__", "__LINE__",
