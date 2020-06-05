@@ -52,23 +52,35 @@ public class Lexer {
                     return res;
                 }
 
+                if (plusOrMinus(c, res) != null) {
+                    value = "";
+                    setStart();
+                    return res;
+                }
+
+                if (operatorHandler(c, res) != null) {
+                    value = "";
+                    setStart();
+                    return res;
+                }
+
+                if (numberHandler(c, res) != null) {
+                    value = "";
+                    setStart();
+                    return res;
+                }
+
                 if (punctuationHandler(c, res) != null) {
                     value = "";
                     setStart();
                     return res;
                 }
 
-                if (plusOrMinus(c, res) != null) {
-                    value = "";
-                    setStart();
-                    return res;
-                }
             }
 
 
             if (c == (char) 0)
                 eof = true;
-            value += String.valueOf(c);
         }
         return null;
     }
@@ -144,6 +156,7 @@ public class Lexer {
         t.setContent(value);
         value = "";
         setStart();
+        bf.back(Character.toString(k));
         return t;
     }
 
@@ -189,6 +202,8 @@ public class Lexer {
         }
 
         setStart();
+        value = "";
+        bf.back(Character.toString(k));
         return null;
     }
 
@@ -201,6 +216,14 @@ public class Lexer {
                     value = Character.toString(c);
 
                     Character k = bf.next();
+
+                    if (!Character.toString(k).matches("[0-9]")) {
+                        finalizeWithTokenType(t, TokenType.OPERATOR, Character.toString(c));
+                        bf.back(Character.toString(k));
+                        return t;
+                    }
+
+
                     Token tryNum = numberHandler(k, t);
                     if (tryNum == null) {
                         t.setTokenType(TokenType.OPERATOR);
@@ -211,22 +234,22 @@ public class Lexer {
                         return t;
                     } else return tryNum;
 
-                }
-            } else {
-                Character k = bf.next();
-                if (k == '=') {
-                    t.setTokenType(TokenType.OPERATOR);
-                    t.setContent(Character.toString(c) + k);
-                    value = "";
-                    setStart();
-                    return t;
                 } else {
-                    t.setTokenType(TokenType.OPERATOR);
-                    t.setContent(Character.toString(c));
-                    value = "";
-                    setStart();
-                    bf.back(Character.toString(k));
-                    return t;
+                    Character k = bf.next();
+                    if (k == '=') {
+                        t.setTokenType(TokenType.OPERATOR);
+                        t.setContent(Character.toString(c) + k);
+                        value = "";
+                        setStart();
+                        return t;
+                    } else {
+                        t.setTokenType(TokenType.OPERATOR);
+                        t.setContent(Character.toString(c));
+                        value = "";
+                        setStart();
+                        bf.back(Character.toString(k));
+                        return t;
+                    }
                 }
             }
         }
@@ -250,18 +273,27 @@ public class Lexer {
     private Token numberHandler(Character c, Token t) throws IOException {
         if (!Character.toString(c).matches("[0-9]")) {
             return null;
+        } else {
+            value += Character.toString(c);
         }
 
         Character k = bf.next();
         if (Character.toString(k).matches("[0-9]")) {
             curState = State.NUMBER_START;
             value += Character.toString(k);
+        } else if (k == '.') {
+            value += Character.toString(k);
+            curState = State.NUMBER_DOUBLE;
+
+        } else if (k == 'e' || k == 'E') {
+            value += Character.toString(k);
+            curState = State.NUMBER_EXP_START;
         } else {
-            t.setTokenType(TokenType.OPERATOR);
-            t.setContent(Character.toString(c));
+            t.setTokenType(TokenType.NUMBER);
+            t.setContent(value);
+            bf.back(Character.toString(k));
             setStart();
             value = "";
-            bf.back(Character.toString(k));
             return t;
         }
 
@@ -282,10 +314,7 @@ public class Lexer {
                 // ERR
                 return getErrorToken(t, k);
             } else {
-                t.setTokenType(TokenType.NUMBER);
-                t.setContent(value);
-                setStart();
-                value = "";
+                finalizeWithTokenType(t, TokenType.NUMBER, value);
                 bf.back(Character.toString(k));
                 return t;
             }
@@ -299,6 +328,8 @@ public class Lexer {
                 value += Character.toString(k);
                 curState = State.NUMBER_EXP_START;
                 break;
+            } else {
+                curState = State.NUMBER_ESCAPE;
             }
         }
 
@@ -311,10 +342,7 @@ public class Lexer {
                     value += Character.toString(expectedDigit);
                     curState = State.NUMBER_EXP;
                 } else {
-                    t.setTokenType(TokenType.NUMBER);
-                    t.setContent(value);
-                    setStart();
-                    value = "";
+                    finalizeWithTokenType(t, TokenType.NUMBER, value);
                     return t;
                 }
             } else {
@@ -322,10 +350,7 @@ public class Lexer {
                     value += Character.toString(k);
                     curState = State.NUMBER_EXP;
                 } else {
-                    t.setTokenType(TokenType.NUMBER);
-                    t.setContent(value);
-                    setStart();
-                    value = "";
+                    finalizeWithTokenType(t, TokenType.NUMBER, value);
                     return t;
                 }
             }
@@ -340,25 +365,46 @@ public class Lexer {
                 // ERR
                 return getErrorToken(t, k);
             } else {
-                t.setTokenType(TokenType.NUMBER);
-                t.setContent(value);
-                setStart();
-                value = "";
+                finalizeWithTokenType(t, TokenType.NUMBER, value);
                 return t;
             }
         }
         t.setTokenType(TokenType.NUMBER);
         t.setContent(value);
-        bf.back(k);
+        bf.back(Character.toString(k));
         setStart();
         value = "";
         return t;
     }
 
-    private boolean analyzeChar(Character c) {
-        return true;
+    private void finalizeWithTokenType(Token t, TokenType number, String value) {
+        t.setTokenType(number);
+        t.setContent(value);
+        setStart();
     }
 
+    private Token operatorHandler(Character c, Token t) throws IOException {
+        value = "";
+        if (Patterns.isPartOfOperations(Character.toString(c))) {
+            curState = State.OPERATION;
+            value += Character.toString(c);
+        } else {
+            return null;
+        }
+        Character k = bf.next();
+        while (curState.equals(State.OPERATION)) {
+            if (Patterns.isPartOfOperations(Character.toString(k))) {
+                value += Character.toString(c);
+            } else {
+                break;
+            }
+
+            k = bf.next();
+        }
+        finalizeWithTokenType(t, TokenType.OPERATOR, value);
+        bf.back(Character.toString(k));
+        return t;
+    }
 
     private void setStart() {
         curState = State.START;

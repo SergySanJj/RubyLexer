@@ -51,12 +51,16 @@ public class Patterns {
         return keywords.contains(word);
     }
 
-    public static boolean isOperation(String word) {
-        return operations.contains(word);
-    }
-
     public static boolean isLiteral(String word) {
         return literals.contains(word);
+    }
+
+    public static boolean isPartOfOperations(String s){
+        for (String op : operations){
+            if (op.startsWith(s))
+                return true;
+        }
+        return false;
     }
 
 }

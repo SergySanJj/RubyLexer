@@ -6,7 +6,6 @@
       <change beforePath="$PROJECT_DIR$/input/test1.txt" beforeDir="false" afterPath="$PROJECT_DIR$/input/test1.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Buff.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Buff.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Patterns.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
     </list>
@@ -82,7 +81,7 @@
       <updated>1591199958259</updated>
       <workItem from="1591199959825" duration="704000" />
       <workItem from="1591256590992" duration="26653000" />
-      <workItem from="1591338972442" duration="13349000" />
+      <workItem from="1591338972442" duration="19108000" />
     </task>
     <servers />
   </component>

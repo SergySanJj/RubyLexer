@@ -27,12 +27,14 @@ public enum State {
     NUMBER_DOUBLE,
     NUMBER_EXP_START,
     NUMBER_EXP,
+    NUMBER_ESCAPE,
 
     // SYMBOL
     SYMBOL,
     SYMBOL_START,
 
-
+    // OPERATIONS
+    OPERATION,
 
     // LIMITER
     END_STATEMENT
