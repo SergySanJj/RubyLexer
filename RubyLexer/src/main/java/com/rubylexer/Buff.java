@@ -29,7 +29,13 @@ public class Buff {
         return c;
     }
 
-    public void back(Character c){
-        value = value.substring(0, ptr) + c + value.substring(ptr,value.length());
+    public void back(Character c) {
+        value = value.substring(0, ptr) + c + value.substring(ptr, value.length());
+        ptr++;
+    }
+
+    public void back(String s) {
+        value = value.substring(0, ptr) + s + value.substring(ptr, value.length());
+        ptr++;
     }
 }

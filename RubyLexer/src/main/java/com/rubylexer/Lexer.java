@@ -29,6 +29,12 @@ public class Lexer {
 
 
     public Token getNextToken() throws IOException {
+        Token t = getTokenImplementation();
+        lastToken = t;
+        return t;
+    }
+
+    private Token getTokenImplementation() throws IOException {
         boolean eof = false;
         Token res = new Token();
 
@@ -36,21 +42,34 @@ public class Lexer {
             Character c = bf.next();
             if (curState.equals(State.START)) {
                 if (idHandler(c, res) != null) {
+                    value = "";
+                    setStart();
                     return res;
                 }
-                if (punctuationHandler(c, res) != null) {
+                if (symbolHandler(c, res) != null) {
+                    value = "";
+                    setStart();
                     return res;
                 }
 
+                if (punctuationHandler(c, res) != null) {
+                    value = "";
+                    setStart();
+                    return res;
+                }
+
+                if (plusOrMinus(c, res) != null) {
+                    value = "";
+                    setStart();
+                    return res;
+                }
             }
 
 
-            if (c == '\u001a')
+            if (c == (char) 0)
                 eof = true;
             value += String.valueOf(c);
         }
-
-
         return null;
     }
 
@@ -71,6 +90,12 @@ public class Lexer {
             case '}':
                 curState = State.R_FIG_BRACE;
                 break;
+            case '[':
+                curState = State.L_SQ_BRACE;
+                break;
+            case ']':
+                curState = State.R_SQ_BRACE;
+                break;
             case ':':
                 curState = State.DOUBLE_DOT;
                 break;
@@ -80,44 +105,254 @@ public class Lexer {
             case '.':
                 curState = State.DOT;
                 break;
+            case '\n':
+                curState = State.NEW_LINE;
+                t.setContent("\\n");
+                t.setTokenType(TokenType.PUNCTUATION);
+                setStart();
+                return t;
+
             default:
+                value = "";
                 setStart();
                 return null;
         }
-        t.setContent("");
+        t.setContent(Character.toString(c));
         t.setTokenType(TokenType.PUNCTUATION);
 
         setStart();
         return t;
     }
 
+    private Token symbolHandler(Character c, Token t) throws IOException {
+        if (c == ':') {
+            curState = State.SYMBOL_START;
+            value = Character.toString(c);
+        } else {
+            setStart();
+            return null;
+        }
+
+        Character k = bf.next();
+        while (Character.toString(k).matches("[_0-9a-zA-Z]")) {
+            value += Character.toString(k);
+            curState = State.SYMBOL;
+            k = bf.next();
+        }
+
+        t.setTokenType(TokenType.SYMBOL);
+        t.setContent(value);
+        value = "";
+        setStart();
+        return t;
+    }
+
     private Token idHandler(Character c, Token t) throws IOException {
         Character k = c;
-        if (Character.toString(c).matches("[$@_a-zA-Z]")) {
-            curState = State.ID;
+        if (Character.toString(k).matches("[$@_a-zA-Z]")) {
+            curState = State.ID_START;
+        } else {
+            setStart();
+            value = "";
+            return null;
         }
         value = Character.toString(k);
-        while (curState.equals(State.ID)) {
-            System.out.println(k);
+
+        k = bf.next();
+        if (curState.equals(State.ID_START)) {
+            if (Character.toString(k).matches("[@_a-zA-Z0-9]")) {
+                value += Character.toString(k);
+                curState = State.ID;
+            } else {
+                t.setTokenType(TokenType.ID);
+                t.setContent(value);
+                bf.back(Character.toString(k));
+                setStart();
+                value = "";
+                return t;
+            }
+        }
+
+        while (curState.equals(State.ID) || curState.equals(State.ID_START)) {
             k = bf.next();
             if (!Character.toString(k).matches("[_a-zA-Z0-9]")) {
                 curState = State.ID_FOUND_ESCAPE;
                 t.setTokenType(TokenType.ID);
                 t.setContent(value);
 
-                //bf.back(k);
                 setStart();
+                bf.back(Character.toString(k));
                 return t;
             } else {
-
                 value += Character.toString(k);
             }
-
         }
 
-        //bf.back(k);
         setStart();
         return null;
+    }
+
+
+    private Token plusOrMinus(Character c, Token t) throws IOException {
+        if (c == '+' || c == '-') {
+            if (lastToken != null) {
+                if (lastToken.getTokenType() == TokenType.PUNCTUATION ||
+                        lastToken.getTokenType() == TokenType.OPERATOR) {
+                    value = Character.toString(c);
+
+                    Character k = bf.next();
+                    Token tryNum = numberHandler(k, t);
+                    if (tryNum == null) {
+                        t.setTokenType(TokenType.OPERATOR);
+                        t.setContent(Character.toString(c));
+                        value = "";
+                        setStart();
+                        bf.back(Character.toString(k));
+                        return t;
+                    } else return tryNum;
+
+                }
+            } else {
+                Character k = bf.next();
+                if (k == '=') {
+                    t.setTokenType(TokenType.OPERATOR);
+                    t.setContent(Character.toString(c) + k);
+                    value = "";
+                    setStart();
+                    return t;
+                } else {
+                    t.setTokenType(TokenType.OPERATOR);
+                    t.setContent(Character.toString(c));
+                    value = "";
+                    setStart();
+                    bf.back(Character.toString(k));
+                    return t;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private Token getErrorToken(Token t, Character k) throws IOException {
+        while (Character.toString(k).matches("[_A-Za-z0-9]")) {
+            value += Character.toString(k);
+            k = bf.next();
+        }
+        t.setContent(value);
+        t.setTokenType(TokenType.ERROR);
+        setStart();
+        value = "";
+        bf.back(Character.toString(k));
+        return t;
+    }
+
+    private Token numberHandler(Character c, Token t) throws IOException {
+        if (!Character.toString(c).matches("[0-9]")) {
+            return null;
+        }
+
+        Character k = bf.next();
+        if (Character.toString(k).matches("[0-9]")) {
+            curState = State.NUMBER_START;
+            value += Character.toString(k);
+        } else {
+            t.setTokenType(TokenType.OPERATOR);
+            t.setContent(Character.toString(c));
+            setStart();
+            value = "";
+            bf.back(Character.toString(k));
+            return t;
+        }
+
+        while (curState.equals(State.NUMBER_START)) {
+            k = bf.next();
+
+            if (Character.toString(k).matches("[0-9]")) {
+                value += Character.toString(k);
+            } else if (k == '.') {
+                value += Character.toString(k);
+                curState = State.NUMBER_DOUBLE;
+                break;
+            } else if (k == 'e' || k == 'E') {
+                value += Character.toString(k);
+                curState = State.NUMBER_EXP_START;
+                break;
+            } else if (Character.toString(k).matches("[_A-Za-z]")) {
+                // ERR
+                return getErrorToken(t, k);
+            } else {
+                t.setTokenType(TokenType.NUMBER);
+                t.setContent(value);
+                setStart();
+                value = "";
+                bf.back(Character.toString(k));
+                return t;
+            }
+        }
+
+        while (curState.equals(State.NUMBER_DOUBLE)) {
+            k = bf.next();
+            if (Character.toString(k).matches("[0-9]")) {
+                value += Character.toString(k);
+            } else if (k == 'e' || k == 'E') {
+                value += Character.toString(k);
+                curState = State.NUMBER_EXP_START;
+                break;
+            }
+        }
+
+        if (curState.equals(State.NUMBER_EXP_START)) {
+            k = bf.next();
+            if (k == '-' || k == '+') {
+                Character expectedDigit = bf.next();
+                if (Character.toString(expectedDigit).matches("[0-9]")) {
+                    value += Character.toString(k);
+                    value += Character.toString(expectedDigit);
+                    curState = State.NUMBER_EXP;
+                } else {
+                    t.setTokenType(TokenType.NUMBER);
+                    t.setContent(value);
+                    setStart();
+                    value = "";
+                    return t;
+                }
+            } else {
+                if (Character.toString(k).matches("[0-9]")) {
+                    value += Character.toString(k);
+                    curState = State.NUMBER_EXP;
+                } else {
+                    t.setTokenType(TokenType.NUMBER);
+                    t.setContent(value);
+                    setStart();
+                    value = "";
+                    return t;
+                }
+            }
+        }
+
+
+        while (curState.equals(State.NUMBER_EXP)) {
+            k = bf.next();
+            if (Character.toString(k).matches("[0-9]")) {
+                value += Character.toString(k);
+            } else if (Character.toString(k).matches("[_A-Za-z]")) {
+                // ERR
+                return getErrorToken(t, k);
+            } else {
+                t.setTokenType(TokenType.NUMBER);
+                t.setContent(value);
+                setStart();
+                value = "";
+                return t;
+            }
+        }
+        t.setTokenType(TokenType.NUMBER);
+        t.setContent(value);
+        bf.back(k);
+        setStart();
+        value = "";
+        return t;
     }
 
     private boolean analyzeChar(Character c) {
@@ -128,4 +363,6 @@ public class Lexer {
     private void setStart() {
         curState = State.START;
     }
+
+    private Token lastToken = null;
 }

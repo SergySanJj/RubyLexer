@@ -9,10 +9,10 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Lexer lexer = new Lexer("./input/test1.txt");
 
-        int c = 0;
-        while ( c < 200) {
-            c++;
-            System.out.println(lexer.getNextToken());
+        Token t = lexer.getNextToken();
+        while (t != null) {
+            System.out.println(t);
+            t = lexer.getNextToken();
         }
     }
 }

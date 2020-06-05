@@ -43,7 +43,7 @@ public class Patterns {
     ));
 
     private static Set<Character> punctuation = new HashSet<>(Arrays.asList(
-            ',', '(', ')', '{', '}', ':', ';', '.'
+            ',', '(', ')', '{', '}', '[', ']', ':', ';', '.', '\n'
     ));
 
 
