@@ -15,7 +15,7 @@ public class RubyLang {
             "def", "defined?", "do",
             "else", "elsif", "end", "ensure",
             "for",
-            "if", "in",
+            "if", "in", "include",
             "module", "next", "nil", "not",
             "or",
             "redo", "rescue", "retry", "return",

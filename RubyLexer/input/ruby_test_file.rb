@@ -1,5 +1,5 @@
 #!/usr/bin/ruby -w
-# include is not a ruby keyword
+# some comment
 include  Some_lib
 
 $global_variable1 = :some_symbol1
