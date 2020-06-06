@@ -12,6 +12,7 @@ Aho A.V., Sethi R., Ullman J.D. "Compiler Principles, Techniques and Tools"
 - boolean literals and nil; 
 - number literals (signed, unsigned integers and doubles; numbers in exponential form);
 - symbols and HEREDOC literals;
+- comments;
 - string and multiline string literals;
 - punctuation;
 - error tokens;
