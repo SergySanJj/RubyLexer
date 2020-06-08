@@ -22,14 +22,14 @@ public class Lexer {
 
 
     public Token getNextToken() throws IOException {
-        Token t = getTokenImplementation();
+        Token t = getNextTokenImplementation();
         lastToken = t;
         value = "";
         setStart();
         return t;
     }
 
-    private Token getTokenImplementation() throws IOException {
+    private Token getNextTokenImplementation() throws IOException {
         boolean eof = false;
         Token res = new Token();
 
@@ -129,20 +129,24 @@ public class Lexer {
             setStart();
             return null;
         }
-
         Character k = bf.next();
-        while (Character.toString(k).matches("[_0-9a-zA-Z]")) {
-            value += Character.toString(k);
-            curState = State.SYMBOL;
-            k = bf.next();
+        while (curState.equals(State.SYMBOL_START) ||
+                curState.equals(State.SYMBOL)) {
+            if (Character.toString(k).matches("[_0-9a-zA-Z]")) {
+                value += Character.toString(k);
+                curState = State.SYMBOL;
+                k = bf.next();
+            } else {
+                t.setTokenType(TokenType.SYMBOL);
+                t.setContent(value);
+                value = "";
+                setStart();
+                bf.back(Character.toString(k));
+                return t;
+            }
         }
-
-        t.setTokenType(TokenType.SYMBOL);
-        t.setContent(value);
-        value = "";
         setStart();
-        bf.back(Character.toString(k));
-        return t;
+        return null;
     }
 
     private Token idHandler(Character c, Token t) throws IOException {
@@ -211,31 +215,21 @@ public class Lexer {
                         return t;
                     }
 
-
                     Token tryNum = numberHandler(k, t);
                     if (tryNum == null) {
-                        t.setTokenType(TokenType.OPERATOR);
-                        t.setContent(Character.toString(c));
-                        value = "";
-                        setStart();
-                        bf.back(Character.toString(k));
+                        value = Character.toString(c);
+                        finalizeWithBufferBack(t, Character.toString(k), TokenType.OPERATOR);
                         return t;
-                    } else return tryNum;
-
+                    } else
+                        return tryNum;
                 } else {
                     Character k = bf.next();
                     if (k == '=') {
-                        t.setTokenType(TokenType.OPERATOR);
-                        t.setContent(Character.toString(c) + k);
-                        value = "";
-                        setStart();
+                        finalizeWithTokenType(t, TokenType.OPERATOR, Character.toString(c) + k);
                         return t;
                     } else {
-                        t.setTokenType(TokenType.OPERATOR);
-                        t.setContent(Character.toString(c));
-                        value = "";
-                        setStart();
-                        bf.back(Character.toString(k));
+                        value = Character.toString(c);
+                        finalizeWithBufferBack(t,Character.toString(k),TokenType.OPERATOR);
                         return t;
                     }
                 }
@@ -273,7 +267,6 @@ public class Lexer {
         } else if (k == '.') {
             value += Character.toString(k);
             curState = State.NUMBER_DOUBLE;
-
         } else if (k == 'e' || k == 'E') {
             value += Character.toString(k);
             curState = State.NUMBER_EXP_START;
@@ -511,7 +504,7 @@ public class Lexer {
             return null;
         } else {
             curState = State.HEREDOC_START;
-            value+=wrap(k);
+            value += wrap(k);
         }
         while (!value.matches("<<[_a-zA-Z][_a-zA-Z0-9]*[.,\n\r\t\\s]")) {
             k = bf.next();
@@ -537,9 +530,9 @@ public class Lexer {
             app = "";
         if (c == '\t')
             app = "\t";
-        if (c=='\n')
+        if (c == '\n')
             app = "\n";
-        if (c=='\r')
+        if (c == '\r')
             app = "\r";
         return app;
     }
