@@ -459,14 +459,25 @@ public class Lexer {
         if (c == '#') {
             value = Character.toString(c);
             curState = State.COMMENT_SINGLE_LINE;
-            Character k = bf.next();
-            while (k != '\n') {
-
-                value += wrap(k);
-                k = bf.next();
+        }
+        Character k = c;
+        while (k != (char) 0) {
+            switch (curState) {
+                case COMMENT_SINGLE_LINE:
+                    if (k != '\n') {
+                        value += wrap(k);
+                        k = bf.next();
+                        curState = State.COMMENT_SINGLE_LINE;
+                    } else {
+                        curState = State.COMMENT_SINGLE_LINE_END;
+                    }
+                    break;
+                case COMMENT_SINGLE_LINE_END:
+                    finalizeWithBufferBack(t, k, TokenType.COMMENT);
+                    return t;
+                default:
+                    return null;
             }
-            finalizeWithBufferBack(t, k, TokenType.COMMENT);
-            return t;
         }
         return null;
     }

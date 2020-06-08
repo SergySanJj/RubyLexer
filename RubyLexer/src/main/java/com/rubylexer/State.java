@@ -42,6 +42,7 @@ public enum State {
 
     // COMMENT
     COMMENT_SINGLE_LINE,
+    COMMENT_SINGLE_LINE_END,
 
     // HEREDOC
     HEREDOC_START,
