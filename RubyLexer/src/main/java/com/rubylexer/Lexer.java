@@ -130,22 +130,24 @@ public class Lexer {
             return null;
         }
         Character k = bf.next();
-        while (curState.equals(State.SYMBOL_START) ||
-                curState.equals(State.SYMBOL)) {
-            if (Character.toString(k).matches("[_0-9a-zA-Z]")) {
-                value += Character.toString(k);
-                curState = State.SYMBOL;
-                k = bf.next();
-            } else {
-                t.setTokenType(TokenType.SYMBOL);
-                t.setContent(value);
-                value = "";
-                setStart();
-                bf.back(Character.toString(k));
-                return t;
+        while (k != (char) 0) {
+            switch (curState) {
+                case SYMBOL_START:
+                    if (Character.toString(k).matches("[_0-9a-zA-Z]")) {
+                        value += Character.toString(k);
+                        curState = State.SYMBOL_START;
+                        k = bf.next();
+                    } else {
+                        finalizeWithBufferBack(t, Character.toString(k), TokenType.SYMBOL);
+                        curState = State.SYMBOL;
+                    }
+                    break;
+                case SYMBOL:
+                    return t;
+                default:
+                    return null;
             }
         }
-        setStart();
         return null;
     }
 
@@ -159,43 +161,40 @@ public class Lexer {
             return null;
         }
         value = Character.toString(k);
-
         k = bf.next();
-        if (curState.equals(State.ID_START)) {
-            if (Character.toString(k).matches("[@_a-zA-Z0-9]")) {
-                value += Character.toString(k);
-                curState = State.ID;
-            } else {
-                if (RubyLang.isKeyword(value))
-                    finalizeWithBufferBack(t, k, TokenType.KEYWORD);
-                else if (RubyLang.isLiteral(value))
-                    finalizeWithBufferBack(t, k, TokenType.LITERAL);
-                else
-                    finalizeWithBufferBack(t, k, TokenType.ID);
-                return t;
+
+        while (k != (char) 0) {
+            switch (curState) {
+                case ID_START:
+                    if (Character.toString(k).matches("[@_a-zA-Z0-9]")) {
+                        value += Character.toString(k);
+                        curState = State.ID;
+                        k = bf.next();
+                    } else {
+                        curState = State.ID_FOUND_ESCAPE;
+                    }
+                    break;
+                case ID:
+                    if (!Character.toString(k).matches("[_a-zA-Z0-9]")) {
+                        curState = State.ID_FOUND_ESCAPE;
+                    } else {
+                        value += Character.toString(k);
+                        curState = State.ID;
+                        k = bf.next();
+                    }
+                    break;
+                case ID_FOUND_ESCAPE:
+                    if (RubyLang.isKeyword(value))
+                        finalizeWithBufferBack(t, k, TokenType.KEYWORD);
+                    else if (RubyLang.isLiteral(value))
+                        finalizeWithBufferBack(t, k, TokenType.LITERAL);
+                    else
+                        finalizeWithBufferBack(t, k, TokenType.ID);
+                    return t;
+                default:
+                    return null;
             }
         }
-
-        while (curState.equals(State.ID) || curState.equals(State.ID_START)) {
-            k = bf.next();
-            if (!Character.toString(k).matches("[_a-zA-Z0-9]")) {
-                curState = State.ID_FOUND_ESCAPE;
-
-                if (RubyLang.isKeyword(value))
-                    finalizeWithBufferBack(t, k, TokenType.KEYWORD);
-                else if (RubyLang.isLiteral(value))
-                    finalizeWithBufferBack(t, k, TokenType.LITERAL);
-                else
-                    finalizeWithBufferBack(t, k, TokenType.ID);
-                return t;
-            } else {
-                value += Character.toString(k);
-            }
-        }
-
-        setStart();
-        value = "";
-        bf.back(Character.toString(k));
         return null;
     }
 
@@ -229,7 +228,7 @@ public class Lexer {
                         return t;
                     } else {
                         value = Character.toString(c);
-                        finalizeWithBufferBack(t,Character.toString(k),TokenType.OPERATOR);
+                        finalizeWithBufferBack(t, Character.toString(k), TokenType.OPERATOR);
                         return t;
                     }
                 }
@@ -258,101 +257,95 @@ public class Lexer {
             return null;
         } else {
             value += Character.toString(c);
-        }
-
-        Character k = bf.next();
-        if (isDigit(k)) {
             curState = State.NUMBER_START;
-            value += Character.toString(k);
-        } else if (k == '.') {
-            value += Character.toString(k);
-            curState = State.NUMBER_DOUBLE;
-        } else if (k == 'e' || k == 'E') {
-            value += Character.toString(k);
-            curState = State.NUMBER_EXP_START;
-        } else {
-            finalizeWithBufferBack(t, k, TokenType.NUMBER);
-            return t;
         }
+        Character k = bf.next();
+        while (k != (char) 0) {
+            switch (curState) {
+                case NUMBER_START:
+                    if (isDigit(k)) {
+                        curState = State.NUMBER_START;
+                        value += Character.toString(k);
+                        k = bf.next();
+                    } else if (k == '.') {
+                        value += Character.toString(k);
+                        curState = State.NUMBER_DOUBLE;
+                        k = bf.next();
+                    } else if (k == 'e' || k == 'E') {
+                        value += Character.toString(k);
+                        curState = State.NUMBER_EXP_START;
+                        k = bf.next();
+                    } else if (Character.toString(k).matches("[_A-Za-z]")) {
+                        return getErrorToken(t, k);
+                    } else {
+                        curState = State.NUMBER_ESCAPE;
+                    }
+                    break;
 
-        while (curState.equals(State.NUMBER_START)) {
-            k = bf.next();
+                case NUMBER_DOUBLE:
+                    if (isDigit(k)) {
+                        value += Character.toString(k);
+                        k = bf.next();
+                    } else if (k == 'e' || k == 'E') {
+                        value += Character.toString(k);
+                        curState = State.NUMBER_EXP_START;
+                        k = bf.next();
+                    } else if (k == '.') {
+                        value = value.substring(0, value.length() - 1);
+                        finalizeWithBufferBack(t, "..", TokenType.NUMBER);
+                        curState = State.NUMBER_RETURN;
+                        k = bf.next();
+                    } else {
+                        curState = State.NUMBER_ESCAPE;
+                    }
+                    break;
+                case NUMBER_EXP_START:
+                    if (k == '-' || k == '+') {
+                        Character expectedDigit = bf.next();
+                        if (isDigit(expectedDigit)) {
+                            value += Character.toString(k);
+                            value += Character.toString(expectedDigit);
+                            curState = State.NUMBER_EXP;
+                            k = bf.next();
+                        } else {
+                            finalizeWithTokenType(t, TokenType.NUMBER, value);
+                            curState = State.NUMBER_RETURN;
+                        }
+                    } else {
+                        if (isDigit(k)) {
+                            value += Character.toString(k);
+                            curState = State.NUMBER_EXP;
+                            k = bf.next();
+                        } else {
+                            finalizeWithTokenType(t, TokenType.NUMBER, value);
+                            return t;
+                        }
+                    }
+                    break;
 
-            if (isDigit(k)) {
-                value += Character.toString(k);
-            } else if (k == '.') {
-                value += Character.toString(k);
-                curState = State.NUMBER_DOUBLE;
-                break;
-            } else if (k == 'e' || k == 'E') {
-                value += Character.toString(k);
-                curState = State.NUMBER_EXP_START;
-                break;
-            } else if (Character.toString(k).matches("[_A-Za-z]")) {
-                // ERR
-                return getErrorToken(t, k);
-            } else {
-                finalizeWithTokenType(t, TokenType.NUMBER, value);
-                bf.back(Character.toString(k));
-                return t;
-            }
-        }
+                case NUMBER_EXP:
+                    if (isDigit(k)) {
+                        value += Character.toString(k);
+                        k = bf.next();
+                    } else if (Character.toString(k).matches("[_A-Za-z]")) {
+                        return getErrorToken(t, k);
+                    } else {
+                        finalizeWithTokenType(t, TokenType.NUMBER, value);
+                        curState = State.NUMBER_RETURN;
+                    }
+                    break;
 
-        while (curState.equals(State.NUMBER_DOUBLE)) {
-            k = bf.next();
-            if (isDigit(k)) {
-                value += Character.toString(k);
-            } else if (k == 'e' || k == 'E') {
-                value += Character.toString(k);
-                curState = State.NUMBER_EXP_START;
-                break;
-            } else if (k == '.') {
-                value = value.substring(0, value.length() - 1);
-                finalizeWithBufferBack(t, "..", TokenType.NUMBER);
-                return t;
-            } else {
-                curState = State.NUMBER_ESCAPE;
-            }
-        }
-
-        if (curState.equals(State.NUMBER_EXP_START)) {
-            k = bf.next();
-            if (k == '-' || k == '+') {
-                Character expectedDigit = bf.next();
-                if (isDigit(expectedDigit)) {
-                    value += Character.toString(k);
-                    value += Character.toString(expectedDigit);
-                    curState = State.NUMBER_EXP;
-                } else {
-                    finalizeWithTokenType(t, TokenType.NUMBER, value);
+                case NUMBER_ESCAPE:
+                    finalizeWithBufferBack(t, k, TokenType.NUMBER);
                     return t;
-                }
-            } else {
-                if (isDigit(k)) {
-                    value += Character.toString(k);
-                    curState = State.NUMBER_EXP;
-                } else {
-                    finalizeWithTokenType(t, TokenType.NUMBER, value);
+                case NUMBER_RETURN:
                     return t;
-                }
+                default:
+                    return null;
             }
         }
 
-
-        while (curState.equals(State.NUMBER_EXP)) {
-            k = bf.next();
-            if (isDigit(k)) {
-                value += Character.toString(k);
-            } else if (Character.toString(k).matches("[_A-Za-z]")) {
-                // ERR
-                return getErrorToken(t, k);
-            } else {
-                finalizeWithTokenType(t, TokenType.NUMBER, value);
-                return t;
-            }
-        }
-        finalizeWithBufferBack(t, k, TokenType.NUMBER);
-        return t;
+        return null;
     }
 
     private void finalizeWithBufferBack(Token t, Character k, TokenType number) {

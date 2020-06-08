@@ -27,6 +27,7 @@ public enum State {
     NUMBER_EXP_START,
     NUMBER_EXP,
     NUMBER_ESCAPE,
+    NUMBER_RETURN,
 
     // SYMBOL
     SYMBOL,
