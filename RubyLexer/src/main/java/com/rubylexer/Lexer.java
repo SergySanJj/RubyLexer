@@ -175,12 +175,12 @@ public class Lexer {
                     }
                     break;
                 case ID:
-                    if (!Character.toString(k).matches("[_a-zA-Z0-9]")) {
-                        curState = State.ID_FOUND_ESCAPE;
-                    } else {
+                    if (Character.toString(k).matches("[_a-zA-Z0-9]")) {
                         value += Character.toString(k);
                         curState = State.ID;
                         k = bf.next();
+                    } else {
+                        curState = State.ID_FOUND_ESCAPE;
                     }
                     break;
                 case ID_FOUND_ESCAPE:
@@ -276,7 +276,7 @@ public class Lexer {
                         curState = State.NUMBER_EXP_START;
                         k = bf.next();
                     } else if (Character.toString(k).matches("[_A-Za-z]")) {
-                        return getErrorToken(t, k);
+                        curState = State.NUMBER_ERROR;
                     } else {
                         curState = State.NUMBER_ESCAPE;
                     }
@@ -301,39 +301,49 @@ public class Lexer {
                     break;
                 case NUMBER_EXP_START:
                     if (k == '-' || k == '+') {
-                        Character expectedDigit = bf.next();
-                        if (isDigit(expectedDigit)) {
-                            value += Character.toString(k);
-                            value += Character.toString(expectedDigit);
-                            curState = State.NUMBER_EXP;
-                            k = bf.next();
-                        } else {
-                            finalizeWithTokenType(t, TokenType.NUMBER, value);
-                            curState = State.NUMBER_RETURN;
-                        }
+                        curState = State.NUMBER_EXP_SIGNED;
+                        value += Character.toString(k);
+                        k = bf.next();
+                    } else if (isDigit(k)) {
+                        curState = State.NUMBER_EXP_UNSIGNED;
+                        value += Character.toString(k);
+                        k = bf.next();
                     } else {
-                        if (isDigit(k)) {
-                            value += Character.toString(k);
-                            curState = State.NUMBER_EXP;
-                            k = bf.next();
-                        } else {
-                            finalizeWithTokenType(t, TokenType.NUMBER, value);
-                            return t;
-                        }
+                        curState = State.NUMBER_ERROR;
                     }
                     break;
 
-                case NUMBER_EXP:
+                case NUMBER_EXP_UNSIGNED:
                     if (isDigit(k)) {
                         value += Character.toString(k);
                         k = bf.next();
                     } else if (Character.toString(k).matches("[_A-Za-z]")) {
-                        return getErrorToken(t, k);
+                        curState = State.NUMBER_ERROR;
                     } else {
                         finalizeWithTokenType(t, TokenType.NUMBER, value);
                         curState = State.NUMBER_RETURN;
                     }
                     break;
+                case NUMBER_EXP_SIGNED:
+                    if (isDigit(k)) {
+                        value += Character.toString(k);
+                        k = bf.next();
+                    } else if (Character.toString(k).matches("[_A-Za-z]")) {
+                        curState = State.NUMBER_ERROR_D;
+                    } else {
+                        finalizeWithTokenType(t, TokenType.NUMBER, value);
+                        curState = State.NUMBER_RETURN;
+                    }
+                    break;
+
+                case NUMBER_ERROR:
+                    bf.back(Character.toString(k));
+                    finalizeWithTokenType(t, TokenType.ERROR, value);
+                    return t;
+                case NUMBER_ERROR_D:
+                    bf.back(Character.toString(value.charAt(value.length() - 1)) + Character.toString(k));
+                    finalizeWithTokenType(t, TokenType.ERROR, value);
+                    return t;
 
                 case NUMBER_ESCAPE:
                     finalizeWithBufferBack(t, k, TokenType.NUMBER);
@@ -406,53 +416,96 @@ public class Lexer {
     }
 
     private void strLiteralSearch(Character c, Token t, char c2) throws IOException {
-        curState = State.STR_LIT_SQ;
-        value += Character.toString(c);
+        if (c == c2) {
+            curState = State.STR_LIT;
+            value = Character.toString(c);
+        }
         Character k = bf.next();
-        while (k != c2 && k != (char) 0) {
-            value += wrap(k);
-            k = bf.next();
+        while (k != (char) 0) {
+            switch (curState) {
+                case STR_LIT:
+                    if (k == c2) {
+                        curState = State.STR_LIT_END;
+                        value += wrap(k);
+                        k = bf.next();
+                    } else if (k == '\\') {
+                        curState = State.STR_LIT_BSLASH;
+                        value += "\\";
+                        k = bf.next();
+                    } else if (k == '\n') {
+                        curState = State.STR_LIT_ERROR;
+                    } else {
+                        curState = State.STR_LIT;
+                        value += wrap(k);
+                        k = bf.next();
+                    }
+                    break;
+                case STR_LIT_BSLASH:
+                    if (k == '\\') {
+                        value += "\\";
+                        curState = State.STR_LIT;
+                        k = bf.next();
+                    } else {
+                        curState = State.STR_LIT_ERROR_BACK;
+                    }
+                    break;
+                case STR_LIT_END:
+                    if (k == ' ' || k == '\t') {
+                        curState = State.STR_LIT_END;
+                        k = bf.next();
+                    } else if (k == '\\') {
+                        value += "\\";
+                        curState = State.STR_MULTILINE;
+                        k = bf.next();
+                    } else {
+                        curState = State.STR_LIT_FINAL;
+                    }
+                    break;
+                case STR_MULTILINE:
+                    if (k == ' ' || k == '\t') {
+                        curState = State.STR_MULTILINE;
+                        k = bf.next();
+                    } else if (k == '\n' || k == '\r') {
+                        curState = State.STR_MULTILINE_N;
+                        value += wrap(k);
+                        k = bf.next();
+                    } else {
+                        curState = State.STR_LIT_ERROR_BACK;
+                    }
+                    break;
+                case STR_MULTILINE_N:
+                    if (k == ' ' || k == '\t') {
+                        curState = State.STR_MULTILINE_N;
+                        k = bf.next();
+                    } else if (k == '\n' || k == '\r') {
+                        curState = State.STR_MULTILINE_N;
+                        value += wrap(k);
+                        k = bf.next();
+                    } else if (k == '\'' || k == '\"') {
+                        c2 = k;
+                        curState = State.STR_LIT;
+                        value += Character.toString(k);
+                        k = bf.next();
+                    } else {
+                        curState = State.STR_LIT_ERROR_BACK;
+                    }
+                    break;
+                case STR_LIT_FINAL:
+                    bf.back(Character.toString(k));
+                    finalizeWithTokenType(t, TokenType.LITERAL, value);
+                    return;
+                case STR_LIT_ERROR:
+                    finalizeWithTokenType(t, TokenType.ERROR, value);
+                    return;
+                case STR_LIT_ERROR_BACK:
+                    bf.back(Character.toString(k));
+                    finalizeWithTokenType(t, TokenType.ERROR, value);
+                    return;
+                default:
+                    t = null;
+                    return;
+            }
         }
-        if (k != (char) 0)
-            value += Character.toString(k);
-
-        k = bf.next();
-        if (k != '\\') {
-            finalizeWithTokenType(t, TokenType.LITERAL, value);
-            bf.back(Character.toString(k));
-            return;
-        }
-
-        value += "\\";
-        curState = State.STR_MULTILINE;
-        do {
-            k = bf.next();
-
-            if (k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
-                getErrorToken(t, k);
-                return;
-            } else
-                value += wrap(k);
-
-        } while (k != '\n' && k != ';' && k != '\r' && k != (char) 0);
-
-        do {
-            k = bf.next();
-
-            if (k != '\'' && k != '\"' && k != '\t' && k != ' ' && k != '\n' && k != ';' && k != '\r') {
-                getErrorToken(t, k);
-                return;
-            } else if (k != '\'' && k != '\"')
-                value += wrap(k);
-        } while (k != '\'' && k != '\"' || k == (char) 0);
-
-        if (k == '\'') {
-            strLiteralSearch(k, t, '\'');
-        } else {
-            strLiteralSearch(k, t, '\"');
-        }
-
-        finalizeWithTokenType(t, TokenType.LITERAL, value);
     }
 
     private Token commentHandler(Character c, Token t) throws IOException {
@@ -460,7 +513,7 @@ public class Lexer {
             value = Character.toString(c);
             curState = State.COMMENT_SINGLE_LINE;
         }
-        Character k = c;
+        Character k = bf.next();
         while (k != (char) 0) {
             switch (curState) {
                 case COMMENT_SINGLE_LINE:

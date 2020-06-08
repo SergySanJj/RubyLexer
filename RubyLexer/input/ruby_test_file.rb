@@ -23,7 +23,7 @@ class ExampleClass
     def multiple_args(a1, a2, a3, a4, a5)
         b = a1 + a2 - a3*a4/a5 % 2
         c = -3
-        d = +256E-10 + 10e120 - 0.24 + 0.04 - 0.
+        d = +256E-10 + 10e-120 - 0.24 + 0.04 - 0.
     end
 
     def exclamation
@@ -53,6 +53,8 @@ BEGIN {
 
     identifier_between = "some"\
     a "errors"
+
+    single_slash_in_literal = "some string\_no other slash"
 
     not_continuation = 'dsdsds'\
 }
