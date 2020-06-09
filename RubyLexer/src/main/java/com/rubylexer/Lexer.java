@@ -590,7 +590,7 @@ public class Lexer {
         if (c == '\n')
             app = "\n";
         if (c == '\r')
-            app = "\r";
+            app = "";
         return app;
     }
 

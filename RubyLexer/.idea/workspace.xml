@@ -3,10 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="8fd15e05-d7ed-4251-9224-1a6d5582ddda" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/input/ruby_test_file.rb" beforeDir="false" afterPath="$PROJECT_DIR$/input/ruby_test_file.rb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/output/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -86,7 +82,8 @@
       <workItem from="1591338972442" duration="48044000" />
       <workItem from="1591426537365" duration="598000" />
       <workItem from="1591607894597" duration="1209000" />
-      <workItem from="1591634647597" duration="13398000" />
+      <workItem from="1591634647597" duration="13876000" />
+      <workItem from="1591680505273" duration="782000" />
     </task>
     <servers />
   </component>
