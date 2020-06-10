@@ -179,8 +179,10 @@ public class Lexer {
                         value += Character.toString(k);
                         curState = State.ID;
                         k = bf.next();
-                    } else {
+                    } else if (RubyLang.isSeparator(k)) {
                         curState = State.ID_FOUND_ESCAPE;
+                    } else {
+                        curState = State.ID_TRAIL_ERROR;
                     }
                     break;
                 case ID_FOUND_ESCAPE:
@@ -314,6 +316,7 @@ public class Lexer {
                     break;
 
                 case NUMBER_EXP_UNSIGNED:
+                case NUMBER_EXP_SIGNED:
                     if (isDigit(k)) {
                         value += Character.toString(k);
                         k = bf.next();
@@ -324,26 +327,18 @@ public class Lexer {
                         curState = State.NUMBER_RETURN;
                     }
                     break;
-                case NUMBER_EXP_SIGNED:
-                    if (isDigit(k)) {
+
+                case NUMBER_ERROR:
+                    if (RubyLang.isSeparator(k)) {
+                        bf.back(Character.toString(k));
+                        finalizeWithTokenType(t, TokenType.ERROR, value);
+                        return t;
+                    } else {
                         value += Character.toString(k);
                         k = bf.next();
-                    } else if (Character.toString(k).matches("[_A-Za-z]")) {
-                        curState = State.NUMBER_ERROR_D;
-                    } else {
-                        finalizeWithTokenType(t, TokenType.NUMBER, value);
-                        curState = State.NUMBER_RETURN;
                     }
                     break;
 
-                case NUMBER_ERROR:
-                    bf.back(Character.toString(k));
-                    finalizeWithTokenType(t, TokenType.ERROR, value);
-                    return t;
-                case NUMBER_ERROR_D:
-                    bf.back(Character.toString(value.charAt(value.length() - 1)) + Character.toString(k));
-                    finalizeWithTokenType(t, TokenType.ERROR, value);
-                    return t;
 
                 case NUMBER_ESCAPE:
                     finalizeWithBufferBack(t, k, TokenType.NUMBER);
@@ -425,13 +420,8 @@ public class Lexer {
             switch (curState) {
                 case STR_LIT:
                     if (k == c2) {
-                        curState = State.STR_LIT_END;
+                        curState = State.STR_LIT_FINAL;
                         value += wrap(k);
-                        k = bf.next();
-                    } else if (k == '\\') {
-                        curState = State.STR_LIT_BSLASH;
-                        value += "\\";
-                        k = bf.next();
                     } else if (k == '\n') {
                         curState = State.STR_LIT_ERROR;
                     } else {
@@ -440,64 +430,10 @@ public class Lexer {
                         k = bf.next();
                     }
                     break;
-                case STR_LIT_BSLASH:
-                    if (k == '\\') {
-                        value += "\\";
-                        curState = State.STR_LIT;
-                        k = bf.next();
-                    } else {
-                        curState = State.STR_LIT_ERROR_BACK;
-                    }
-                    break;
-                case STR_LIT_END:
-                    if (k == ' ' || k == '\t') {
-                        curState = State.STR_LIT_END;
-                        k = bf.next();
-                    } else if (k == '\\') {
-                        value += "\\";
-                        curState = State.STR_MULTILINE;
-                        k = bf.next();
-                    } else {
-                        curState = State.STR_LIT_FINAL;
-                    }
-                    break;
-                case STR_MULTILINE:
-                    if (k == ' ' || k == '\t') {
-                        curState = State.STR_MULTILINE;
-                        k = bf.next();
-                    } else if (k == '\n' || k == '\r') {
-                        curState = State.STR_MULTILINE_N;
-                        value += wrap(k);
-                        k = bf.next();
-                    } else {
-                        curState = State.STR_LIT_ERROR_BACK;
-                    }
-                    break;
-                case STR_MULTILINE_N:
-                    if (k == ' ' || k == '\t') {
-                        curState = State.STR_MULTILINE_N;
-                        k = bf.next();
-                    } else if (k == '\n' || k == '\r') {
-                        curState = State.STR_MULTILINE_N;
-                        value += wrap(k);
-                        k = bf.next();
-                    } else if (k == '\'' || k == '\"') {
-                        c2 = k;
-                        curState = State.STR_LIT;
-                        value += Character.toString(k);
-                        k = bf.next();
-                    } else {
-                        curState = State.STR_LIT_ERROR_BACK;
-                    }
-                    break;
                 case STR_LIT_FINAL:
-                    bf.back(Character.toString(k));
                     finalizeWithTokenType(t, TokenType.LITERAL, value);
                     return;
                 case STR_LIT_ERROR:
-                    finalizeWithTokenType(t, TokenType.ERROR, value);
-                    return;
-                case STR_LIT_ERROR_BACK:
                     bf.back(Character.toString(k));
                     finalizeWithTokenType(t, TokenType.ERROR, value);
                     return;
@@ -587,8 +523,6 @@ public class Lexer {
             app = "";
         if (c == '\t')
             app = "\t";
-        if (c == '\n')
-            app = "\n";
         if (c == '\r')
             app = "";
         return app;

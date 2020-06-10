@@ -62,4 +62,8 @@ public class RubyLang {
         return Character.isWhitespace(c) && c != '\n';
     }
 
+    public static boolean isSeparator(Character c){
+        return (c==';') || (c==' ') || (c=='\t') || (c=='\n');
+    }
+
 }

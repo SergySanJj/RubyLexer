@@ -20,6 +20,7 @@ public enum State {
     ID,
     ID_START,
     ID_FOUND_ESCAPE,
+    ID_TRAIL_ERROR,
 
     // NUMBER
     NUMBER_START,
@@ -30,7 +31,6 @@ public enum State {
     NUMBER_ESCAPE,
     NUMBER_RETURN,
     NUMBER_ERROR,
-    NUMBER_ERROR_D,
 
     // SYMBOL
     SYMBOL,

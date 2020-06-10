@@ -7,9 +7,9 @@ public class Token {
     private Map<TokenType, String> map = new HashMap<>();
     {
         map.put(TokenType.NUMBER, "color: #83c385;");
-        map.put(TokenType.OPERATOR, "color: #e0e0e0; font-weight: bold;");
+        map.put(TokenType.OPERATOR, "color: blue; font-weight: bold;");
         map.put(TokenType.LITERAL, "color: #e47c4b;");
-        map.put(TokenType.PUNCTUATION, "color: #ffffff;");
+        map.put(TokenType.PUNCTUATION, "color: red;");
         map.put(TokenType.ID, "color: #e4e4e4;");
         map.put(TokenType.KEYWORD, "color: #0095ff; font-weight: bold;");
         map.put(TokenType.COMMENT, "color: #4aa724;");
@@ -54,20 +54,13 @@ public class Token {
     }
 
     public String toHtml() {
-        if (getContent().equals("\\n"))
+        if (tokenType.equals(TokenType.PUNCTUATION) && getContent().equals("\\n"))
             return "<br>";
 
         String rs = getContent();
         rs = rs.replace("<", "&#60;");
         rs = rs.replace(">", "&#62;");
 
-        if (tokenType == TokenType.LITERAL) {
-            rs = rs.replace("\"\\", "\"\\<br>");
-            rs = rs.replace("\'\\", "\'\\<br>");
-            if (rs.startsWith("&#60;"))
-                rs = rs.replace("\n", "<br>");
-        } else
-            rs = rs.replace("\n", "<br>");
         rs = rs.replace("\t", "&nbsp;");
         rs = rs.replace("  ", "&nbsp;&nbsp;&nbsp;");
         return "<span style='" + getStyle(getTokenType()) + "'>" + rs + "</span>";

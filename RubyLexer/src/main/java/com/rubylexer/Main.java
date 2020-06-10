@@ -23,7 +23,7 @@ public class Main {
     private static void lexToHtml(String inPath, String outPath) throws IOException {
         BufferedWriter writer = new BufferedWriter(new FileWriter(outPath));
 
-        writer.write("<html><head><title>Lex " + inPath + "</title>" +
+        writer.write("<html><head> <meta charset=\"utf-8\"><title>Lex " + inPath + "</title>" +
                 "<style type=\"text/css\">" +
                 "html, body {margin: 5px; padding: 5px; background: #252525;}" +
                 "span {font-size: 110%;margin: 1px; padding: 1px}" +
