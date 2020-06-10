@@ -6,10 +6,8 @@
       <change beforePath="$PROJECT_DIR$/input/ruby_test_file.rb" beforeDir="false" afterPath="$PROJECT_DIR$/input/ruby_test_file.rb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/output/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/output/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/RubyLang.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/RubyLang.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/State.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/rubylexer/Token.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -94,7 +92,7 @@
       <workItem from="1591697490728" duration="5512000" />
       <workItem from="1591711242958" duration="2879000" />
       <workItem from="1591771534359" duration="622000" />
-      <workItem from="1591806164849" duration="6082000" />
+      <workItem from="1591806164849" duration="9671000" />
     </task>
     <servers />
   </component>
@@ -119,16 +117,5 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/rubylexer/Lexer.java</url>
-          <line>419</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>

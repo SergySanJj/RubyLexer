@@ -15,6 +15,7 @@ public enum State {
     DOUBLE_DOT,
     DOT_COMA,
     NEW_LINE,
+    BSLASH,
 
     // ID
     ID,

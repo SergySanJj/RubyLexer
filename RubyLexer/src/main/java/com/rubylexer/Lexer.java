@@ -75,9 +75,13 @@ public class Lexer {
             case ',':
                 curState = State.COMA;
                 break;
+            case '\\':
+                curState = State.BSLASH;
+                break;
             case '(':
                 curState = State.LBRACE;
                 break;
+
             case ')':
                 curState = State.RBRACE;
                 break;
@@ -179,10 +183,12 @@ public class Lexer {
                         value += Character.toString(k);
                         curState = State.ID;
                         k = bf.next();
-                    } else if (RubyLang.isSeparator(k)) {
+                    } else if (RubyLang.isSeparator(k) || RubyLang.isOperatorStart(k)) {
                         curState = State.ID_FOUND_ESCAPE;
                     } else {
                         curState = State.ID_TRAIL_ERROR;
+                        value += Character.toString(k);
+                        k = bf.next();
                     }
                     break;
                 case ID_FOUND_ESCAPE:
@@ -193,6 +199,16 @@ public class Lexer {
                     else
                         finalizeWithBufferBack(t, k, TokenType.ID);
                     return t;
+
+                case ID_TRAIL_ERROR:
+                    if (RubyLang.isSeparator(k)) {
+                        finalizeWithBufferBack(t, k, TokenType.ERROR);
+                        return t;
+                    } else {
+                        value += Character.toString(k);
+                        k = bf.next();
+                    }
+                    break;
                 default:
                     return null;
             }
@@ -349,7 +365,6 @@ public class Lexer {
                     return null;
             }
         }
-
         return null;
     }
 
@@ -387,11 +402,11 @@ public class Lexer {
         while (curState.equals(State.OPERATION)) {
             if (RubyLang.isPartOfOperations(value + Character.toString(k))) {
                 value += Character.toString(k);
+                k = bf.next();
+
             } else {
                 break;
             }
-
-            k = bf.next();
         }
         finalizeWithTokenType(t, TokenType.OPERATOR, value);
         bf.back(Character.toString(k));
@@ -468,6 +483,7 @@ public class Lexer {
                     return null;
             }
         }
+
         return null;
     }
 

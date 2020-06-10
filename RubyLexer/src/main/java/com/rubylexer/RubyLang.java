@@ -62,8 +62,14 @@ public class RubyLang {
         return Character.isWhitespace(c) && c != '\n';
     }
 
-    public static boolean isSeparator(Character c){
-        return (c==';') || (c==' ') || (c=='\t') || (c=='\n');
+    public static boolean isSeparator(Character c) {
+        return (c == ';') || (c == ' ') || (c == '\t') || (c == '\n') || (c == '\r')
+                || (c == '(') || (c == ')') || (c == '[') || (c == ']') || (c == '{') || (c == '}');
+    }
+
+    public static boolean isOperatorStart(Character c) {
+        return (c == '+') || (c == '-') || (c == '=') || (c == '>') || (c == '<') || (c == '(') || (c == '?') ||
+                (c == '!') || (c == '%') || (c == '#') || (c == ':') || (c == '.') || (c == ',');
     }
 
 }
